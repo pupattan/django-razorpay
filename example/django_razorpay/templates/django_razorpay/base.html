@@ -1,0 +1,60 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.84.0">
+    <title>Checkout example · Bootstrap v5.0</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/checkout/">
+      <!-- Bootstrap core CSS -->
+    <link href="{% static 'django_razorpay/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'django_razorpay/css/bootstrap-select.min.css' %}" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+
+    <!-- Custom styles for this template -->
+    {% block head %}{% endblock %}
+  </head>
+  <body class="bg-light">
+
+<div class="container">
+  {% block main %}{% endblock %}
+
+  <footer class="my-5 pt-5 text-muted text-center text-small">
+    <p class="mb-1">&copy; 2017–2021 Company Name</p>
+    <ul class="list-inline">
+      <li class="list-inline-item"><a href="#">Privacy</a></li>
+      <li class="list-inline-item"><a href="#">Terms</a></li>
+      <li class="list-inline-item"><a href="#">Support</a></li>
+    </ul>
+  </footer>
+</div>
+
+
+<script src="{% static 'django_razorpay/js/bootstrap.bundle.min.js' %}"></script>
+
+<script src="{% static 'django_razorpay/js/jquery.min.js' %}"></script>
+<script src="{% static 'django_razorpay/js/bootstrap-select.min.js' %}"></script>
+{% block js %}{% endblock %}
+
+  </body>
+</html>

@@ -1,0 +1,77 @@
+{% extends "django_razorpay/base.html" %}
+
+{% load static %}
+
+{% block title %}
+    {{ block.super }}
+       Pay using Razorpay
+{% endblock title %}
+
+{% block page_title %}{% endblock %}
+{% block main %}
+<div class="container pb-5 mb-sm-4">
+      <div class="pt-5">
+        <div class="card py-3 mt-sm-3">
+          <div class="card-body text-center">
+            <h2 class="h4 pb-3">Pay securely</h2>
+              Amount: <br>
+              <h3 class="font-weight-normal text-center">
+
+                 <span class="text-accent pt-2">
+                   {{payment_data.currency|upper}}  {{payment_data.amount}}
+                 </span>
+            </h3>
+
+              <a class="btn btn-primary mt-3" id="rzp-button1" ><i class="czi-card"></i>&nbsp;Click to Pay</a>
+              <a href="{% url 'django_razorpay:monthly_collections' %}" class="btn btn-secondary mt-3 mr-3">Cancel</a>
+          </div>
+        </div>
+      </div>
+    </div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    var options = {
+        "key": "{{payment_data.gateway.key}}", // Enter the Key ID generated from the Dashboard
+        "amount": "{{payment_data.amount}}",
+        "order_id": "{{payment_data.order_id}}",
+        "currency": "{{payment_data.currency|upper}}",
+        "name": "{{payment_data.company_name}}",
+        "description": "{{payment_data.description}}",
+        "image": "{{payment_data.company_logo}}",
+        "handler": function (response){
+               console.log(response);
+               window.location.href = "{% url 'django_razorpay:payment_verify' %}?razorpay_payment_id=" + response.razorpay_payment_id + '&&razorpay_order_id=' + response.razorpay_order_id + '&&razorpay_signature='+response.razorpay_signature;
+        },
+        "prefill": {
+            "name": "{{payment_data.name}}",
+            "email": "{{payment_data.email}}",
+            "contact": "+91{{payment_data.phonenumber}}"
+        },
+
+        "theme": {
+            "color": "#009EF7"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response){
+        if(response.razorpay_payment_id){
+            window.location.href = "{% url 'django_razorpay:payment_failed' %}";
+        }
+        else{
+            alert("sometrhing");
+        }
+    });
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+    </script>
+{% endblock %}
+{% block js %}
+{{block.super}}
+<script>
+     $(window).on('load', function() {
+        $('#rzp-button1').click();
+    });
+</script>
+{% endblock %}
