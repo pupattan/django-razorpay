@@ -1,0 +1,57 @@
+{% extends "django_razorpay/base.html" %}
+{% load static %}
+{% block title %}Payment status{% endblock %}
+{% block head %}{% endblock %}
+{% block main %}
+<main>
+    <div class="py-5 text-center">
+      <img class="d-block mx-auto mb-4" src="{{organization_logo}}" alt="" width="72" height="57">
+    </div>
+    <div class="row g-5 align-items-center justify-content-center">
+      <div class="col-md-7 col-lg-5">
+          <div class="row">
+          <div class="col-12">
+              {% for message in messages %}
+              <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+              <strong>{{ message }}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+              {% endfor %}
+            </div>
+
+          </div>
+
+      </div>
+    </div>
+  </main>
+{% endblock %}
+{% block js %}
+<script>
+  $(document).ready(function(){
+  $('.selectpicker').on('changed.bs.select', function (e) {
+      var selected = e.target.value;
+      console.log(selected);
+      let data = {'name': selected, 'csrfmiddlewaretoken': '{{ csrf_token }}'}
+      let url = "{% url 'django_razorpay:get_member_details' %}";
+      console.log(data);
+      fetch(url, { method: 'POST', body: JSON.stringify(data),
+      headers: { 'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+       }
+      })
+        .then(Result => Result.json())
+        .then(resp_data => {
+            console.log(resp_data);
+            if(resp_data.email !== undefined){
+              document.getElementById("email").value = resp_data.email;
+            }
+            if(resp_data.phonenumber !== undefined){
+              document.getElementById("phonenumber").value = resp_data.phonenumber;
+            }
+        })
+        .catch(errorMsg => { console.log(errorMsg); });
+  });
+
+  });
+</script>
+{% endblock %}

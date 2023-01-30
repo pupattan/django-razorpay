@@ -1,13 +1,6 @@
 {% extends "django_razorpay/base.html" %}
-
+{% block title %}Checkout{% endblock %}
 {% load static %}
-
-{% block title %}
-    {{ block.super }}
-       Pay using Razorpay
-{% endblock title %}
-
-{% block page_title %}{% endblock %}
 {% block main %}
 <div class="container pb-5 mb-sm-4">
       <div class="pt-5">
@@ -23,7 +16,7 @@
             </h3>
 
               <a class="btn btn-primary mt-3" id="rzp-button1" ><i class="czi-card"></i>&nbsp;Click to Pay</a>
-              <a href="{% url 'django_razorpay:monthly_collections' %}" class="btn btn-secondary mt-3 mr-3">Cancel</a>
+              <a href="{% url 'django_razorpay:membership_fee' %}" class="btn btn-secondary mt-3 mr-3">Cancel</a>
           </div>
         </div>
       </div>
@@ -35,9 +28,9 @@
         "amount": "{{payment_data.amount}}",
         "order_id": "{{payment_data.order_id}}",
         "currency": "{{payment_data.currency|upper}}",
-        "name": "{{payment_data.company_name}}",
+        "name": "{{payment_data.organization_name}}",
         "description": "{{payment_data.description}}",
-        "image": "{{payment_data.company_logo}}",
+        "image": "{{payment_data.organization_logo}}",
         "handler": function (response){
                console.log(response);
                window.location.href = "{% url 'django_razorpay:payment_verify' %}?razorpay_payment_id=" + response.razorpay_payment_id + '&&razorpay_order_id=' + response.razorpay_order_id + '&&razorpay_signature='+response.razorpay_signature;

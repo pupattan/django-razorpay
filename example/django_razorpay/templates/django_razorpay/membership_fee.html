@@ -1,17 +1,15 @@
 {% extends "django_razorpay/base.html" %}
 {% load static %}
-{% block head %}
-{% endblock %}
+{% block head %}{% endblock %}
+{% block title %}Membership Fee Payment{% endblock %}
+
 {% block main %}
 <main>
     <div class="py-5 text-center">
-      <img class="d-block mx-auto mb-4" src="{{company_logo}}" alt="" width="72" height="57">
-      <h2>Monthly Collections</h2>
+      <img class="d-block mx-auto mb-4" src="{{organization_logo}}" alt="" width="72" height="57">
+      <h2>Membership Fee Payment</h2>
       <p class="lead">This payment is for member only.</p>
     </div>
-        {% if messages %}
-
-        {% endif %}
     <div class="row g-5 align-items-center justify-content-center">
       <div class="col-md-7 col-lg-5">
           <div class="row">

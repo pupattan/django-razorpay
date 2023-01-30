@@ -11,7 +11,7 @@ from django_razorpay.models import *
 from django_razorpay.utils import RazorpayCustom, add_amount_from_total
 
 
-def monthly_collections(request):
+def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
     if request.method == "POST":
         payment_data = request.POST.copy()
@@ -20,13 +20,13 @@ def monthly_collections(request):
                  (settings.PAYMENT_DATA.get("percentage_charges") / 100)
         payment_data["gateway"] = {"key": RazorpayCustom.KEY, "amount": amount}
         payment_data["amount"] = amount
-        payment_data["description"] = "Monthly collection"
+        payment_data["description"] = "Membership fee"
         payment_data["currency"] = RazorpayCustom.CURRENCY.upper()
-        payment_data["company_name"] = settings.COMPANY_DATA.get('name')
-        payment_data["company_logo"] = settings.COMPANY_DATA.get('logo')
+        payment_data["organization_name"] = settings.COMPANY_DATA.get('name')
+        payment_data["organization_logo"] = settings.COMPANY_DATA.get('logo')
         payment_data["order_id"] = RazorpayCustom().create_order(amount=amount,
                                                                  currency=payment_data["currency"],
-                                                                 type="monthly-collections")
+                                                                 type="membership_fee")
 
         existing_member = Member.objects.filter(name=payment_data.get("name")).first()
         if existing_member:
@@ -34,19 +34,19 @@ def monthly_collections(request):
             existing_member.save()
         else:
             Member.objects.create(name=payment_data.get("name"), email=payment_data.get("email"))
-        return render(request, "django_razorpay/monthly_checkout.html", dict(payment_data=payment_data))
+        return render(request, "django_razorpay/fee_checkout.html", dict(payment_data=payment_data))
     else:
-        return render(request, "django_razorpay/monthly_collections.html", dict(members=members))
+        return render(request, "django_razorpay/membership_fee.html", dict(members=members))
 
 
 def payment_success(request):
     messages.success(request, "Payment successful....")
-    return redirect(reverse("django_razorpay:monthly_collections"))
+    return render(request, "django_razorpay/payment_status.html")
 
 
 def payment_failed(request):
     messages.error(request, "Payment failed !!")
-    return redirect(reverse("django_razorpay:monthly_collections"))
+    return render(request, "django_razorpay/payment_status.html")
 
 
 @csrf_exempt
