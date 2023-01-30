@@ -7,8 +7,8 @@
 <main>
     <div class="py-5 text-center">
       <img class="d-block mx-auto mb-4" src="{{organization_logo}}" alt="" width="72" height="57">
-      <h2>Membership Fee Payment</h2>
-      <p class="lead">This payment is for member only.</p>
+      <h2>Add expense</h2>
+      <p class="lead">Add an expense.</p>
     </div>
     <div class="row g-5 align-items-center justify-content-center">
       <div class="col-md-7 col-lg-5">
@@ -23,32 +23,26 @@
             </div>
 
           </div>
-        <h4 class="mb-3">Member details</h4>
+        <h4 class="mb-3">Expense details</h4>
         <form method="POST">
           {% csrf_token %}
           <div class="row g-3">
             <div class="col-12">
-              <label for="firstName" class="form-label">Name</label>
-                <select class="selectpicker form-control border border-primary" data-live-search="true" data-container="body" name="name">
-                  <option data-tokens="" disabled selected> -- Search and select your Name -- </option>
-                  {% for member in members %}
-                  <option data-tokens="{{member}}">{{member}}</option>
-                  {% endfor %}
-
-                </select>
+              <label for="name" class="form-label">Name</label>
+              <input type="text" class="form-control border border-primary" id="name" name="label" placeholder="Privde the description" required>
 
             </div>
               <div class="col-12">
-              <label for="phonenumber" class="form-label ">Phone Number</label>
-              <input type="text" class="form-control border border-primary" id="phonenumber" name="phonenumber" placeholder="E.g. 9854785478" required>
+              <label for="date" class="form-label ">Amount</label>
+              <input type="text" class="form-control border border-primary" id="amount" name="amount" placeholder="E.g. 200" required>
             </div>
             <div class="col-12">
-              <label for="email" class="form-label">Email <span class="text-muted">(Optional)</span></label>
-              <input type="email" class="form-control border border-primary" id="email" placeholder="you@example.com" name="email" required>
+              <label for="date" class="form-label ">Date</label>
+              <input type="text" class="form-control border border-primary" id="date" name="date" placeholder="E.g. 24/04/2022">
             </div>
 
           <hr class="my-4">
-          <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
+          <button class="w-100 btn btn-primary btn-lg" type="submit">Submit</button>
           </div>
         </form>
       </div>

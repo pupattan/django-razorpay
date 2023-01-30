@@ -47,18 +47,19 @@ class RazorpayCustom(object):
                                                                    cls=DecimalEncoder))).get("id")
 
 
-def add_amount_from_total(amount, razorpay_payment_id):
+def add_amount_from_total(amount, label):
     if Balance.objects.exists():
         collection = Balance.objects.first()
         collection.amount += Decimal(amount)
-        collection.razorpay_payment_id = razorpay_payment_id
+        collection.label = label
         collection.save()
     else:
-        Balance.objects.create(amount=amount, razorpay_payment_id=razorpay_payment_id)
+        Balance.objects.create(amount=amount, label=label)
 
 
-def deduct_amount_from_total(amount):
+def deduct_amount_from_total(amount, label):
     collection = Balance.objects.first()
-    collection.amount -= amount
+    collection.amount -= Decimal(amount)
+    collection.label = label
     collection.save()
 

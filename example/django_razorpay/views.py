@@ -1,4 +1,5 @@
 import json
+import datetime
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -8,8 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView
 from django.contrib import messages
 from django_razorpay.models import *
-from django_razorpay.utils import RazorpayCustom, add_amount_from_total
-
+from django_razorpay.utils import RazorpayCustom, add_amount_from_total, deduct_amount_from_total
+from django.utils.timezone import make_aware
 
 def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
@@ -70,11 +71,37 @@ class PaymentVerify(RedirectView):
             elif payment.get('customer_id'):
                 customer = rz.client.customer.fetch(payment['customer_id'])
                 email = customer["email"]
-            Transaction.objects.create(amount=amount,
-                                       razorpay_payment_id=razorpay_payment_id,
-                                       data=payment,
-                                       email=email)
+            member = Member.objects.filter(email=email)
+            if member:
+                label = member.name
+            else:
+                label = email
             add_amount_from_total(amount, razorpay_payment_id)
+            Transaction.objects.create(amount=amount,
+                                       data=payment,
+                                       label=label,
+                                       payment_type=Transaction.INCOMING)
+
             return reverse("django_razorpay:payment_success")
         else:
             return reverse("django_razorpay:payment_failed")
+
+
+def transactions_list(request):
+    transactions = Transaction.objects.all()
+    print(transactions)
+    return render(request, "django_razorpay/transactions_list.html", {"transactions": transactions})
+
+
+def add_expense(request):
+    if request.method == "POST":
+        label = request.POST.get("label")
+        amount = request.POST.get("amount")
+        date_dt = datetime.datetime.strptime(request.POST.get("date"), '%d/%m/%Y')
+        deduct_amount_from_total(amount, "expense")
+        Transaction.objects.create(amount=amount,
+                                   label=label,
+                                   payment_type=Transaction.OUTGOING,
+                                   created_at=make_aware(date_dt))
+        messages.success(request, "Payment added....")
+    return render(request, "django_razorpay/add_expense.html")

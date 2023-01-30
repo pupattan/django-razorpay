@@ -16,15 +16,39 @@ class Member(models.Model):
 
 
 class Transaction(models.Model):
-    email = models.EmailField("email address", blank=True)
-    amount = models.DecimalField("amount", blank=True, decimal_places=2, max_digits=12)
-    data = models.JSONField(blank=True)
-    razorpay_payment_id = models.CharField("razorpay_payment_id", blank=True, max_length=50)
+    INCOMING = "INCOMING"
+    OUTGOING = "OUTGOING"
+    TYPE_CHOICES = (
+        (INCOMING, "Incoming"),
+        (OUTGOING, "Outgoing"),
+    )
 
+    payment_type = models.CharField(max_length=15,
+                                    choices=TYPE_CHOICES,
+                                    default=INCOMING)
+
+    label = models.CharField("label", blank=True, max_length=50)
+    amount = models.DecimalField("amount", blank=True, decimal_places=2, max_digits=12)
+    data = models.JSONField(blank=True, null=True)
     created_at = models.DateTimeField("date joined", default=timezone.now)
 
     def __str__(self):
-        return self.email
+        sign = "-" if self.payment_type == self.OUTGOING else "+"
+        return "{}{}".format(sign, self.label)
+
+    @property
+    def get_label(self):
+        return self.label
+
+    @property
+    def get_amount(self):
+        sign = "-" if self.payment_type == self.OUTGOING else "+"
+        return "{}{}".format(sign, self.amount)
+
+    @property
+    def date(self):
+        print(self.data)
+        return self.created_at
 
 
 class Balance(models.Model):
@@ -32,11 +56,11 @@ class Balance(models.Model):
     Total current balance
     """
     amount = models.DecimalField("amount", default=0, decimal_places=2, max_digits=12)
-    razorpay_payment_id = models.CharField("razorpay_payment_id", blank=True, max_length=50)
+    label = models.CharField("label", blank=True, max_length=50)
     updated_at = models.DateTimeField("Updated at", default=timezone.now)
 
     def __str__(self):
-        return str(self.amount) + " | " + str(self.updated_at) + " | " + str(self.razorpay_payment_id)
+        return str(self.amount) + " | " + str(self.updated_at) + " | " + str(self.label)
 
     def save(self, *args, **kwargs):
         if not self.pk and Balance.objects.exists():
