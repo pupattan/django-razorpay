@@ -4,3 +4,4 @@ from .models import *
 admin.site.register(Member)
 admin.site.register(Transaction)
 admin.site.register(Balance)
+admin.site.register(Organization)

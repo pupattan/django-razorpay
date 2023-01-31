@@ -1,5 +1,6 @@
 import json
 import datetime
+from decimal import Decimal
 
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -12,29 +13,36 @@ from django_razorpay.models import *
 from django_razorpay.utils import RazorpayCustom, add_amount_from_total, deduct_amount_from_total
 from django.utils.timezone import make_aware
 
+
 def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
     if request.method == "POST":
-        payment_data = request.POST.copy()
-        amount = settings.PAYMENT_DATA.get("monthly_collection_amount") + \
-                 settings.PAYMENT_DATA.get("monthly_collection_amount") * \
-                 (settings.PAYMENT_DATA.get("percentage_charges") / 100)
-        payment_data["gateway"] = {"key": RazorpayCustom.KEY, "amount": amount}
-        payment_data["amount"] = amount
-        payment_data["description"] = "Membership fee"
-        payment_data["currency"] = RazorpayCustom.CURRENCY.upper()
-        payment_data["organization_name"] = settings.COMPANY_DATA.get('name')
-        payment_data["organization_logo"] = settings.COMPANY_DATA.get('logo')
-        payment_data["order_id"] = RazorpayCustom().create_order(amount=amount,
-                                                                 currency=payment_data["currency"],
-                                                                 type="membership_fee")
+        org = Organization.objects.last()
+        if hasattr(settings, "RAZORPAY_ENABLE_CONVENIENCE_FEE") and settings.RAZORPAY_ENABLE_CONVENIENCE_FEE:
+            amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
+        else:
+            amount = round(org.membership_fee, 2)
 
-        existing_member = Member.objects.filter(name=payment_data.get("name")).first()
+        # payment_data["gateway"] = {"key": RazorpayCustom.KEY, "amount": amount}
+        # payment_data["amount"] = amount
+        # payment_data["description"] = "Membership fee"
+        # payment_data["currency"] = RazorpayCustom.CURRENCY.upper()
+        # payment_data["organization_name"] = settings.DJ_RAZORPAY.get('organization_name')
+        # payment_data["organization_logo"] = settings.DJ_RAZORPAY.get('organization_logo')
+        # payment_data["order_id"] = RazorpayCustom().create_order(amount=amount,
+        #                                                          currency=payment_data["currency"],
+        #                                                          type="membership_fee")
+        phonenumber = request.POST.get("phonenumber")
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        payment_data = RazorpayCustom().create_order(amount=amount, email=email, name=name, phonenumber=phonenumber)
+        existing_member = Member.objects.filter(name=name).first()
         if existing_member:
-            existing_member.email = payment_data.get("email")
+            existing_member.email = email
+            existing_member.phone = phonenumber
             existing_member.save()
         else:
-            Member.objects.create(name=payment_data.get("name"), email=payment_data.get("email"))
+            Member.objects.create(name=name, email=email)
         return render(request, "django_razorpay/fee_checkout.html", dict(payment_data=payment_data))
     else:
         return render(request, "django_razorpay/membership_fee.html", dict(members=members))
@@ -53,7 +61,7 @@ def payment_failed(request):
 @csrf_exempt
 def get_member_details(request):
     data = json.loads(request.body)
-    member = Member.objects.filter(name=data['name'])
+    member = Member.objects.filter(name=data['name']).first()
     member_detail = {"email": member.email, "phonenumber": member.phone}
     return JsonResponse(member_detail)
 
@@ -71,7 +79,7 @@ class PaymentVerify(RedirectView):
             elif payment.get('customer_id'):
                 customer = rz.client.customer.fetch(payment['customer_id'])
                 email = customer["email"]
-            member = Member.objects.filter(email=email)
+            member = Member.objects.filter(email=email).first()
             if member:
                 label = member.name
             else:
@@ -89,7 +97,6 @@ class PaymentVerify(RedirectView):
 
 def transactions_list(request):
     transactions = Transaction.objects.all()
-    print(transactions)
     return render(request, "django_razorpay/transactions_list.html", {"transactions": transactions})
 
 
@@ -103,5 +110,5 @@ def add_expense(request):
                                    label=label,
                                    payment_type=Transaction.OUTGOING,
                                    created_at=make_aware(date_dt))
-        messages.success(request, "Payment added....")
+        messages.success(request, "Expense added....")
     return render(request, "django_razorpay/add_expense.html")

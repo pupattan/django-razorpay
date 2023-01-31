@@ -106,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE =  'Asia/Kolkata'
 
 USE_I18N = True
 
@@ -123,20 +123,20 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-RAZORPAY_PAYMENT_VARIANTS = {
-    "public_key": "rzp_test_6GvpLSAmWckaTn",
-    "secret_key": "Vo9OgyOw1FqGufiqhlWu4FyN",
-    "currency": "inr"
+
+DJ_RAZORPAY = {
+    "organization_name": "Acme Corp",
+    "organization_email": "something@gmail.com",  # Optional
+    "organization_logo": "https://example.com/your_logo",  # Optional,
+
+    "RAZORPAY_VARIANTS": {
+        "public_key": "rzp_test_6GvpLSAmWckaTn",
+        "secret_key": "Vo9OgyOw1FqGufiqhlWu4FyN",
+        "currency": "inr"
+    }
 }
 
-COMPANY_DATA = {
-    "name": "Acme Corp",
-    "email": "Vo9OgyOw1FqGufiqhlWu4FyN", # Optional
-    "logo": "https://example.com/your_logo" # Optional
-}
-
-PAYMENT_DATA = {"monthly_collection_amount": 200,
-                "percentage_charges": 3}
+RAZORPAY_ENABLE_CONVENIENCE_FEE = True # You charge a convenience fee to your customer.
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {

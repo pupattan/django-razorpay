@@ -47,8 +47,7 @@ class Transaction(models.Model):
 
     @property
     def date(self):
-        print(self.data)
-        return self.created_at
+        return self.created_at.date
 
 
 class Balance(models.Model):
@@ -67,3 +66,30 @@ class Balance(models.Model):
             raise ValidationError('There is can be only one Balance instance')
         return super(Balance, self).save(*args, **kwargs)
 
+
+class Organization(models.Model):
+    """
+    Organization details
+    """
+    membership_fee = models.DecimalField("membership_fee", default=200, decimal_places=2, max_digits=12, null=True)
+    gateway_charges = models.DecimalField("gateway_charges", default=3, decimal_places=2, max_digits=12, null=True)
+
+    updated_at = models.DateTimeField("Updated at", default=timezone.now)
+
+    def __str__(self):
+        return str(self.membership_fee) + " | " + str(self.updated_at) + " | " + str(self.gateway_charges)
+
+    def save(self, *args, **kwargs):
+        if not self.pk and Organization.objects.exists():
+            raise ValidationError('There is can be only one Balance instance')
+        return super(Organization, self).save(*args, **kwargs)
+
+# # ----------------
+# # Create initial object on load
+# # ----------------
+#
+# if not Balance.objects.exists():
+#     Balance.objects.create()
+#
+# if not Organization.objects.exists():
+#     Organization.objects.create()

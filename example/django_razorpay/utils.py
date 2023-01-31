@@ -7,6 +7,7 @@ import decimal
 from django_razorpay.models import Balance
 from decimal import Decimal
 
+
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, decimal.Decimal):
@@ -15,9 +16,9 @@ class DecimalEncoder(json.JSONEncoder):
 
 
 class RazorpayCustom(object):
-    KEY = settings.RAZORPAY_PAYMENT_VARIANTS.get("public_key")
-    SECRET = settings.RAZORPAY_PAYMENT_VARIANTS.get("secret_key")
-    CURRENCY = settings.RAZORPAY_PAYMENT_VARIANTS.get("currency")
+    KEY = settings.DJ_RAZORPAY.get("RAZORPAY_VARIANTS").get("public_key")
+    SECRET = settings.DJ_RAZORPAY.get("RAZORPAY_VARIANTS").get("secret_key")
+    CURRENCY = settings.DJ_RAZORPAY.get("RAZORPAY_VARIANTS").get("currency")
 
     @property
     def client(self):
@@ -37,7 +38,7 @@ class RazorpayCustom(object):
         except Exception as e:
             return False
 
-    def create_order(self, **kwargs):
+    def __create_order(self, **kwargs):
         order_amount = kwargs.pop("amount") * 100
         order_currency = kwargs.pop("currency").upper()
         notes = kwargs  # OPTIONAL
@@ -46,6 +47,19 @@ class RazorpayCustom(object):
                                                                         notes=notes),
                                                                    cls=DecimalEncoder))).get("id")
 
+
+    def create_order(self, amount, name="", email="", phonenumber=""):
+        payment_data = dict(name=name, email=email, phonenumber=phonenumber)
+        payment_data["gateway"] = {"key": self.KEY, "amount": amount}
+        payment_data["amount"] = amount
+        payment_data["description"] = "Membership fee"
+        payment_data["currency"] = self.CURRENCY.upper()
+        payment_data["organization_name"] = settings.DJ_RAZORPAY.get('organization_name')
+        payment_data["organization_logo"] = settings.DJ_RAZORPAY.get('organization_logo')
+        payment_data["order_id"] = self.__create_order(amount=amount,
+                                                       currency=payment_data["currency"],
+                                                       type="membership_fee")
+        return payment_data
 
 def add_amount_from_total(amount, label):
     if Balance.objects.exists():
