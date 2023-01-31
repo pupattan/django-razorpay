@@ -41,9 +41,9 @@ class Transaction(models.Model):
         return self.label
 
     @property
-    def get_amount(self):
-        sign = "-" if self.payment_type == self.OUTGOING else "+"
-        return "{}{}".format(sign, self.amount)
+    def get_amount_html(self):
+        sign = "<span class='text-danger'>-" if self.payment_type == self.OUTGOING else "<span class='text-success'>+"
+        return "{}{}</span>".format(sign, self.amount)
 
     @property
     def date(self):

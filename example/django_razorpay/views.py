@@ -12,7 +12,7 @@ from django.contrib import messages
 from django_razorpay.models import *
 from django_razorpay.utils import RazorpayCustom, add_amount_from_total, deduct_amount_from_total
 from django.utils.timezone import make_aware
-
+from dateutil.relativedelta import relativedelta
 
 def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
@@ -96,8 +96,40 @@ class PaymentVerify(RedirectView):
 
 
 def transactions_list(request):
-    transactions = Transaction.objects.all()
-    return render(request, "django_razorpay/transactions_list.html", {"transactions": transactions})
+
+    total_balance = Balance.objects.last().amount
+    payment_types = [{"label": "Incoming", "value": Transaction.INCOMING},
+                     {"label": "Expense", "value": Transaction.OUTGOING}]
+
+    month_selected = request.GET.get("month")
+    payment_type_selected = request.GET.get("payment-type")
+    last_few_months = []
+    now = timezone.now()
+    month_value_format = "%b-%Y"
+    if month_selected:
+        current_month = month_selected
+    else:
+        current_month = now.strftime(month_value_format)
+
+    if payment_type_selected:
+        current_payment_type = payment_type_selected
+    else:
+        current_payment_type = Transaction.INCOMING
+    current_month_dt = datetime.datetime.strptime(current_month, month_value_format)
+    for i in range(10):
+        __month = now - relativedelta(months=i)
+        last_few_months.append({"label": __month.strftime("%b %Y"), "value": __month.strftime(month_value_format)})
+    transactions = Transaction.objects.filter(created_at__month=current_month_dt.month,
+                                              created_at__year=current_month_dt.year,
+                                              payment_type=current_payment_type,
+                                              ).all()
+    return render(request, "django_razorpay/transactions_list.html", {"transactions": transactions,
+                                                                      "total_balance": total_balance,
+                                                                      "last_few_months": last_few_months,
+                                                                      "current_month": current_month,
+                                                                      "payment_types": payment_types,
+                                                                      "current_payment_type": current_payment_type
+                                                                      })
 
 
 def add_expense(request):
