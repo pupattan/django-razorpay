@@ -48,9 +48,10 @@
             </select>
           </div>
         </form>
+          {% if transactions %}
         <table class="table table-striped table-hover">
             {% if total_balance > 0 %}
-            <caption><b>Total balance: &#x20B9; {{total_balance}}</b></caption>
+            <caption><b>Total current balance: &#x20B9; {{total_balance}}</b></caption>
             {% endif %}
           <thead class="table-dark">
             <tr>
@@ -71,6 +72,16 @@
             {% endfor %}
           </tbody>
         </table>
+          {% else %}
+          <div class="row">
+            <div class="col-12">
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <strong>No transactions found !!! </strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            </div>
+          </div>
+          {% endif %}
       </div>
     </div>
   </main>
