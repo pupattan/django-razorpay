@@ -6,7 +6,6 @@
 {% block main %}
 <main>
     <div class="py-5 text-center">
-      <img class="d-block mx-auto mb-4" src="{{organization_logo}}" alt="" width="72" height="57">
       <h2>Adhoc Payment</h2>
       <p class="lead">Do a adhoc payment using razorpay</p>
     </div>
@@ -29,12 +28,12 @@
           <div class="row g-3">
             <div class="col-12">
               <label for="name" class="form-label">Label / Description / Name</label>
-              <input type="text" class="form-control border border-primary" id="name" name="label" placeholder="Provide the description" required>
+              <input type="text" class="form-control border border-primary" id="name" name="label" placeholder="Example: For John Doe" required>
 
             </div>
               <div class="col-12">
               <label for="amount" class="form-label ">Amount</label>
-              <input type="text" class="form-control border border-primary" id="amount" name="amount" placeholder="E.g. 200" required>
+              <input type="text" class="form-control border border-primary" id="amount" name="amount" placeholder="Example: 200" required>
             </div>
           <hr class="my-4">
           <button class="w-100 btn btn-primary btn-lg" type="submit">Submit</button>

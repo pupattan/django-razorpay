@@ -127,8 +127,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DJ_RAZORPAY = {
     "organization_name": "Acme Corp",
     "organization_email": "something@gmail.com",  # Optional
-    "organization_logo": "https://example.com/your_logo",  # Optional,
-
+    "organization_logo": "https://www.cpsmashers.com/static/img/logo-transperant.png",  # Optional,
+    "nav_links": [("Membership Fee", "/payments/membership-fee"),
+                  ("Transactions", "/payments/transactions"),
+                  ("Adhoc Pay", "/payments/adhoc")
+                  ],
     "RAZORPAY_VARIANTS": {
         "public_key": "rzp_test_6GvpLSAmWckaTn",
         "secret_key": "Vo9OgyOw1FqGufiqhlWu4FyN",

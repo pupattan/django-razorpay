@@ -1,4 +1,5 @@
 {% load static %}
+{% load dj_razorpay %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -35,7 +36,31 @@
     {% block head %}{% endblock %}
   </head>
   <body class="bg-light">
+  <div class="container">
+    <header class="d-flex flex-wrap justify-content-center py-3 border-bottom">
+      <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+        <img class="bi me-2" width="40" height="40" src="{% organization_logo %}">
+        <span class="fs-4">{% organization_name %}</span>
+      </a>
 
+      <ul class="nav nav-pills">
+        {% nav_links as nav_links_list %}
+        {% for links in nav_links_list|slice:":2" %}
+        <li class="nav-item"><a href="{{links.1}}" class="nav-link pe-0">{{links.0}}</a></li>
+        {% endfor %}
+        <li class="nav-item dropdown">
+          <a class="nav-link pe-0 dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            More
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            {% for links in nav_links_list|slice:"2:" %}
+            <li><a class="dropdown-item" href="{{links.1}}">{{links.0}}</a></li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+    </header>
+  </div>
 <div class="container">
   {% block main %}{% endblock %}
 
