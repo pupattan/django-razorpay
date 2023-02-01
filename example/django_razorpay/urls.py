@@ -9,5 +9,6 @@ urlpatterns = [
     path('payment-success', payment_success, name="payment_success"),
     path('payment-failed', payment_failed, name="payment_failed"),
     path('transactions', transactions_list, name="transactions_list"),
-    path('expense', add_expense, name="add_expense"),
+    path('manual-transaction', manual_transaction, name="manual_transaction"),
+    path('adhoc', addhoc_payment, name="addhoc_payment"),
 ]

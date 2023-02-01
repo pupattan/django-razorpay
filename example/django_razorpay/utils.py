@@ -1,16 +1,18 @@
 import json
-
+import logging
+from decimal import Decimal
 import razorpay
 from django.conf import settings
-from django.urls import reverse
-import decimal
+
 from django_razorpay.models import Balance
-from decimal import Decimal
+
+
+logger = logging.getLogger(__name__)
 
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, decimal.Decimal):
+        if isinstance(o, Decimal):
             return float(o)
         return super(DecimalEncoder, self).default(o)
 
@@ -47,7 +49,6 @@ class RazorpayCustom(object):
                                                                         notes=notes),
                                                                    cls=DecimalEncoder))).get("id")
 
-
     def create_order(self, amount, name="", email="", phonenumber=""):
         payment_data = dict(name=name, email=email, phonenumber=phonenumber)
         payment_data["gateway"] = {"key": self.KEY, "amount": amount}
@@ -61,7 +62,9 @@ class RazorpayCustom(object):
                                                        type="membership_fee")
         return payment_data
 
-def add_amount_from_total(amount, label):
+
+def add_amount_to_total(amount, label):
+    logger.info("Adding payment {}, label: {}".format(Decimal(amount), label))
     if Balance.objects.exists():
         collection = Balance.objects.first()
         collection.amount += Decimal(amount)
@@ -72,6 +75,7 @@ def add_amount_from_total(amount, label):
 
 
 def deduct_amount_from_total(amount, label):
+    logger.info("Deducting payment {}, label: {}".format(Decimal(amount), label))
     collection = Balance.objects.first()
     collection.amount -= Decimal(amount)
     collection.label = label

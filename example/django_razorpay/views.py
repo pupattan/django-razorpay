@@ -1,7 +1,7 @@
 import json
 import datetime
-from decimal import Decimal
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -10,9 +10,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import RedirectView
 from django.contrib import messages
 from django_razorpay.models import *
-from django_razorpay.utils import RazorpayCustom, add_amount_from_total, deduct_amount_from_total
+from django_razorpay.utils import RazorpayCustom, add_amount_to_total, deduct_amount_from_total
 from django.utils.timezone import make_aware
-from dateutil.relativedelta import relativedelta
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
+
 
 def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
@@ -43,7 +45,7 @@ def membership_fee(request):
             existing_member.save()
         else:
             Member.objects.create(name=name, email=email)
-        return render(request, "django_razorpay/fee_checkout.html", dict(payment_data=payment_data))
+        return render(request, "django_razorpay/checkout.html", dict(payment_data=payment_data))
     else:
         return render(request, "django_razorpay/membership_fee.html", dict(members=members))
 
@@ -71,6 +73,7 @@ class PaymentVerify(RedirectView):
         rz = RazorpayCustom()
         if rz.verify_payment(self.request):
             razorpay_payment_id = self.request.GET.get('razorpay_payment_id')
+            label = self.request.GET.get('label')
             payment = rz.client.payment.fetch(razorpay_payment_id)
             amount = payment['amount'] / 100
             email = ""
@@ -80,11 +83,13 @@ class PaymentVerify(RedirectView):
                 customer = rz.client.customer.fetch(payment['customer_id'])
                 email = customer["email"]
             member = Member.objects.filter(email=email).first()
-            if member:
+            if label:
+                pass
+            elif member:
                 label = member.name
             else:
                 label = email
-            add_amount_from_total(amount, razorpay_payment_id)
+            add_amount_to_total(amount, razorpay_payment_id)
             Transaction.objects.create(amount=amount,
                                        data=payment,
                                        label=label,
@@ -96,11 +101,7 @@ class PaymentVerify(RedirectView):
 
 
 def transactions_list(request):
-
     total_balance = Balance.objects.last().amount
-    payment_types = [{"label": "Incoming", "value": Transaction.INCOMING},
-                     {"label": "Expense", "value": Transaction.OUTGOING}]
-
     month_selected = request.GET.get("month")
     payment_type_selected = request.GET.get("payment-type")
     last_few_months = []
@@ -127,20 +128,44 @@ def transactions_list(request):
                                                                       "total_balance": total_balance,
                                                                       "last_few_months": last_few_months,
                                                                       "current_month": current_month,
-                                                                      "payment_types": payment_types,
+                                                                      "payment_types": Transaction.PAYMENT_TYPE_LABEL,
                                                                       "current_payment_type": current_payment_type
                                                                       })
 
 
-def add_expense(request):
+@login_required
+@staff_member_required
+def manual_transaction(request):
     if request.method == "POST":
+        payment_type = request.POST.get("payment_type")
         label = request.POST.get("label")
         amount = request.POST.get("amount")
         date_dt = datetime.datetime.strptime(request.POST.get("date"), '%d/%m/%Y')
-        deduct_amount_from_total(amount, "expense")
+        if payment_type == Transaction.INCOMING:
+            add_amount_to_total(amount, "manual-transaction")
+        elif payment_type == Transaction.OUTGOING:
+            deduct_amount_from_total(amount, "manual-transaction")
+        else:
+            raise ValidationError("Please provide payment type")
         Transaction.objects.create(amount=amount,
                                    label=label,
-                                   payment_type=Transaction.OUTGOING,
+                                   payment_type=payment_type,
                                    created_at=make_aware(date_dt))
-        messages.success(request, "Expense added....")
-    return render(request, "django_razorpay/add_expense.html")
+
+        messages.success(request, "Transaction added....")
+    return render(request, "django_razorpay/manual_transaction.html",
+                  {"payment_types": Transaction.PAYMENT_TYPE_LABEL})
+
+
+def addhoc_payment(request):
+    if request.method == "POST":
+        org = Organization.objects.last()
+        if hasattr(settings, "RAZORPAY_ENABLE_CONVENIENCE_FEE") and settings.RAZORPAY_ENABLE_CONVENIENCE_FEE:
+            amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
+        else:
+            amount = round(org.membership_fee, 2)
+
+        payment_data = RazorpayCustom().create_order(amount=amount, name=request.POST.get("label"))
+        return render(request, "django_razorpay/checkout.html", dict(payment_data=payment_data))
+    else:
+        return render(request, "django_razorpay/adhoc_payment.html")

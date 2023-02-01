@@ -22,6 +22,8 @@ class Transaction(models.Model):
         (INCOMING, "Incoming"),
         (OUTGOING, "Outgoing"),
     )
+    PAYMENT_TYPE_LABEL = [{"label": "Incoming", "value": INCOMING},
+                          {"label": "Expense", "value": OUTGOING}]
 
     payment_type = models.CharField(max_length=15,
                                     choices=TYPE_CHOICES,
