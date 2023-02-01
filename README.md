@@ -27,8 +27,8 @@ Razorpay payment gateway integration in a django project
                      ("Adhoc Pay", "/payments/adhoc")
                      ],
        "RAZORPAY_VARIANTS": {
-           "public_key": "rzp_test_6GvpLSAmWckaTn",
-           "secret_key": "Vo9OgyOw1FqGufiqhlWu4FyN",
+           "public_key": "rzp_test_6GvpLSAmWckaT",
+           "secret_key": "Vo9OgyOw1FqGufiqhlWu4Fykl",
            "currency": "inr"
        },
        "RAZORPAY_ENABLE_CONVENIENCE_FEE": True # You charge a convenience fee to your customer.
