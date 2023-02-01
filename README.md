@@ -1,5 +1,5 @@
 # django-razorpay
-Razorpay payment integration in a django project 
+Razorpay payment gateway integration in a django project 
 
 ## Installation
 
