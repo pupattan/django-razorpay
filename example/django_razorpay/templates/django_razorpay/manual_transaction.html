@@ -60,29 +60,6 @@
 {% block js %}
 <script>
   $(document).ready(function(){
-  $('.selectpicker').on('changed.bs.select', function (e) {
-      var selected = e.target.value;
-      console.log(selected);
-      let data = {'name': selected, 'csrfmiddlewaretoken': '{{ csrf_token }}'}
-      let url = "{% url 'django_razorpay:get_member_details' %}";
-      console.log(data);
-      fetch(url, { method: 'POST', body: JSON.stringify(data),
-      headers: { 'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-       }
-      })
-        .then(Result => Result.json())
-        .then(resp_data => {
-            console.log(resp_data);
-            if(resp_data.email !== undefined){
-              document.getElementById("email").value = resp_data.email;
-            }
-            if(resp_data.phonenumber !== undefined){
-              document.getElementById("phonenumber").value = resp_data.phonenumber;
-            }
-        })
-        .catch(errorMsg => { console.log(errorMsg); });
-  });
 
   });
 </script>

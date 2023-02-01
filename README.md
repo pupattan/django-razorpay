@@ -42,4 +42,6 @@ Razorpay payment integration in a django project
    ```
    
 4. Run ``python manage.py migrate`` to create the django_razorpay models.
-5. Visit http://127.0.0.1:8000/payments/ for payments.
+5. Run ``python manage.py dj_razorpay_init`` to initialize models models. 
+6. If you want to add members, create superuser, login and add.
+7. Visit http://127.0.0.1:8000/payments/ for payments.

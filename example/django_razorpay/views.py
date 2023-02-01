@@ -20,7 +20,7 @@ def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
     if request.method == "POST":
         org = Organization.objects.last()
-        if hasattr(settings, "RAZORPAY_ENABLE_CONVENIENCE_FEE") and settings.RAZORPAY_ENABLE_CONVENIENCE_FEE:
+        if hasattr(settings, "DJ_RAZORPAY") and settings.DJ_RAZORPAY.get("RAZORPAY_ENABLE_CONVENIENCE_FEE"):
             amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
         else:
             amount = round(org.membership_fee, 2)
@@ -160,7 +160,7 @@ def manual_transaction(request):
 def addhoc_payment(request):
     if request.method == "POST":
         org = Organization.objects.last()
-        if hasattr(settings, "RAZORPAY_ENABLE_CONVENIENCE_FEE") and settings.RAZORPAY_ENABLE_CONVENIENCE_FEE:
+        if hasattr(settings, "DJ_RAZORPAY") and settings.DJ_RAZORPAY.get("RAZORPAY_ENABLE_CONVENIENCE_FEE"):
             amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
         else:
             amount = round(org.membership_fee, 2)

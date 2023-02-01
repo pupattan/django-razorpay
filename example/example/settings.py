@@ -136,10 +136,9 @@ DJ_RAZORPAY = {
         "public_key": "rzp_test_6GvpLSAmWckaTn",
         "secret_key": "Vo9OgyOw1FqGufiqhlWu4FyN",
         "currency": "inr"
-    }
+    },
+    "RAZORPAY_ENABLE_CONVENIENCE_FEE": True # You charge a convenience fee to your customer.
 }
-
-RAZORPAY_ENABLE_CONVENIENCE_FEE = True # You charge a convenience fee to your customer.
 
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {

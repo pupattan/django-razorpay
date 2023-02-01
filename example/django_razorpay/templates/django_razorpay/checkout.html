@@ -33,7 +33,7 @@
         "image": "{{payment_data.organization_logo}}",
         "handler": function (response){
                console.log(response);
-               window.location.href = "{% url 'django_razorpay:payment_verify' %}?razorpay_payment_id=" + response.razorpay_payment_id + '&&razorpay_order_id=' + response.razorpay_order_id + '&&razorpay_signature='+response.razorpay_signature+ '&&label='+{{payment_data.name}};
+               window.location.href = "{% url 'django_razorpay:payment_verify' %}?razorpay_payment_id=" + response.razorpay_payment_id + '&&razorpay_order_id=' + response.razorpay_order_id + '&&razorpay_signature='+response.razorpay_signature+ '&&label={{payment_data.name}}';
         },
         "prefill": {
             "name": "{{payment_data.name}}",
