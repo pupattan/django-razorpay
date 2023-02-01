@@ -1,12 +1,14 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(
     name='django-razorpay',
-    version='0.0.1',
-    packages=[''],
+    version='1.0.4',
     url='https://github.com/pupattan/django-razorpay',
     license='MIT',
     author='pupattan',
     author_email='pulak.pattanayak@gmail.com',
-    description='Razorpay payment integration in a django project '
+    description='Razorpay payment integration in a django project ',
+    packages=find_packages(exclude=["tests.*", "tests", "example.*", "example", "docs"]),
+    include_package_data=True,  # declarations in MANIFEST.in
+    install_requires=["Django>=3.2", 'python-dateutil', 'razorpay'],
 )
