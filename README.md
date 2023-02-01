@@ -9,7 +9,7 @@ Razorpay payment gateway integration in a django project
     pip install django-razorpay
     ```
 
-   1. Add to `INSTALLED_APPS` in your `settings.py`:
+2. Add to `INSTALLED_APPS` in your `settings.py`:
 
       ```python
       INSTALLED_APPS = (
@@ -27,21 +27,21 @@ Razorpay payment gateway integration in a django project
                      ("Adhoc Pay", "/payments/adhoc")
                      ],
        "RAZORPAY_VARIANTS": {
-           "public_key": "rzp_test_6GvpLSAmWckaT",
-           "secret_key": "Vo9OgyOw1FqGufiqhlWu4Fykl",
+           "public_key": "rzp_test_6GvpLSAmWckaMk",
+           "secret_key": "Vo9OgyOw1FqGufiqhlWu4Fy32kl",
            "currency": "inr"
        },
        "RAZORPAY_ENABLE_CONVENIENCE_FEE": True # You charge a convenience fee to your customer.
-}
+    }
 
-from django.contrib.messages import constants as messages
-MESSAGE_TAGS = {
-    messages.DEBUG: 'alert-info',
-    messages.INFO: 'alert-info',
-    messages.SUCCESS: 'alert-success',
-    messages.WARNING: 'alert-warning',
-    messages.ERROR: 'alert-danger',
-}
+    from django.contrib.messages import constants as messages
+    MESSAGE_TAGS = {
+        messages.DEBUG: 'alert-info',
+        messages.INFO: 'alert-info',
+        messages.SUCCESS: 'alert-success',
+        messages.WARNING: 'alert-warning',
+        messages.ERROR: 'alert-danger',
+    }
    ```
    
 3. Include the django_razorpay URLconf in your project urls.py like this to `urls.py`:
