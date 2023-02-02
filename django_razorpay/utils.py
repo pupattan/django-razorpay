@@ -4,7 +4,7 @@ from decimal import Decimal
 import razorpay
 from django.conf import settings
 
-from django_razorpay.models import Balance
+from django_razorpay.models import Balance, Organization
 
 
 logger = logging.getLogger(__name__)
@@ -61,6 +61,14 @@ class RazorpayCustom(object):
                                                        currency=payment_data["currency"],
                                                        type="membership_fee")
         return payment_data
+
+    @staticmethod
+    def is_fee_applicable():
+        return hasattr(settings, "DJ_RAZORPAY") and settings.DJ_RAZORPAY.get("RAZORPAY_ENABLE_CONVENIENCE_FEE")
+
+    def caculate_amount(self):
+        org = Organization.objects.first()
+        amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
 
 
 def add_amount_to_total(amount, label):

@@ -63,7 +63,7 @@
 <script src="{% static 'django_razorpay/js/bootstrap-datepicker.min.js' %}"></script>
 <script>
   $(document).ready(function(){
-
+         $('.date').datepicker({format: 'dd/mm/yyyy'});
   });
 </script>
 {% endblock %}

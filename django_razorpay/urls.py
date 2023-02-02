@@ -11,5 +11,5 @@ urlpatterns = [
     path('transactions', transactions, name="transactions"),
     path('manual-transaction', manual_transaction, name="manual_transaction"),
     path('adhoc', addhoc_payment, name="addhoc_payment"),
-    path('', transactions_list, name="index"),
+    path('', transactions, name="index"),
 ]

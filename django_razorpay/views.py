@@ -1,5 +1,6 @@
 import json
 import datetime
+from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -20,8 +21,8 @@ def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
     if request.method == "POST":
         org = Organization.objects.last()
-        if hasattr(settings, "DJ_RAZORPAY") and settings.DJ_RAZORPAY.get("RAZORPAY_ENABLE_CONVENIENCE_FEE"):
-            amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
+        if RazorpayCustom.is_fee_applicable():
+            amount = org.get_amount_fee_with_charges(org.membership_fee)
         else:
             amount = round(org.membership_fee, 2)
 
@@ -119,15 +120,15 @@ def transactions(request):
         last_few_months.append({"label": __month.strftime("%b %Y"), "value": __month.strftime(month_value_format)})
 
     transactions_qs = Transaction.objects.filter(created_at__month=current_month_dt.month,
-                                              created_at__year=current_month_dt.year,
-                                              )
-    if payment_type_selected:
+                                                 created_at__year=current_month_dt.year,
+                                                 )
+    if not payment_type_selected or payment_type_selected == Transaction.ALL:
+        current_payment_type = Transaction.ALL
+        transactions = transactions_qs.all()
+    else:
         current_payment_type = payment_type_selected
         transactions = transactions_qs.filter(payment_type=payment_type_selected,
                                                   ).all()
-    else:
-        current_payment_type = Transaction.ALL
-        transactions = transactions_qs.all()
 
     return render(request, "django_razorpay/transactions.html", {"transactions": transactions,
                                                                       "total_balance": total_balance,
@@ -159,14 +160,14 @@ def manual_transaction(request):
 
         messages.success(request, "Transaction added....")
     return render(request, "django_razorpay/manual_transaction.html",
-                  {"payment_types": Transaction.PAYMENT_TYPE_LABEL})
+                  {"payment_types": Transaction.PAYMENT_TYPE_LABEL[1:]})
 
 
 def addhoc_payment(request):
     if request.method == "POST":
         org = Organization.objects.last()
-        if hasattr(settings, "DJ_RAZORPAY") and settings.DJ_RAZORPAY.get("RAZORPAY_ENABLE_CONVENIENCE_FEE"):
-            amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
+        if RazorpayCustom.is_fee_applicable():
+            amount = org.get_amount_fee_with_charges(Decimal(request.POST.get("amount")))
         else:
             amount = round(org.membership_fee, 2)
 

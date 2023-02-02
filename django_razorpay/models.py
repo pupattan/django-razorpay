@@ -84,6 +84,9 @@ class Organization(models.Model):
     def __str__(self):
         return str(self.membership_fee) + " | " + str(self.updated_at) + " | " + str(self.gateway_charges)
 
+    def get_amount_fee_with_charges(self, amount):
+        return round(amount + (amount * (self.gateway_charges / 100)), 2)
+
     def save(self, *args, **kwargs):
         if not self.pk and Organization.objects.exists():
             raise ValidationError('There is can be only one Balance instance')

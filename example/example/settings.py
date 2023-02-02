@@ -130,7 +130,8 @@ DJ_RAZORPAY = {
     "organization_logo": "https://www.cpsmashers.com/static/img/logo-transperant.png",  # Optional,
     "nav_links": [("Membership Fee", "/payments/membership-fee"),
                   ("Transactions", "/payments/transactions"),
-                  ("Adhoc Pay", "/payments/adhoc")
+                  ("Adhoc Pay", "/payments/adhoc"),
+                  ("Manual transaction", "/payments/manual-transaction")
                   ],
     "RAZORPAY_VARIANTS": {
         "public_key": "rzp_test_6GvpLSAmWckaTn",
