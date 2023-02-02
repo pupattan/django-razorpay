@@ -16,14 +16,17 @@ class Member(models.Model):
 
 
 class Transaction(models.Model):
+    ALL = "ALL"
     INCOMING = "INCOMING"
     OUTGOING = "OUTGOING"
     TYPE_CHOICES = (
         (INCOMING, "Incoming"),
         (OUTGOING, "Outgoing"),
     )
-    PAYMENT_TYPE_LABEL = [{"label": "Incoming", "value": INCOMING},
-                          {"label": "Expense", "value": OUTGOING}]
+    PAYMENT_TYPE_LABEL = [{"label": "All", "value": ALL},
+                          {"label": "Incoming", "value": INCOMING},
+                          {"label": "Expense", "value": OUTGOING},
+                          ]
 
     payment_type = models.CharField(max_length=15,
                                     choices=TYPE_CHOICES,

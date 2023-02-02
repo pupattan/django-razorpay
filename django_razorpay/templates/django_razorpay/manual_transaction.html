@@ -1,7 +1,9 @@
 {% extends "django_razorpay/base.html" %}
 {% load static %}
-{% block head %}{% endblock %}
-{% block title %}Membership Fee Payment{% endblock %}
+{% block head %}
+<link href="{% static 'django_razorpay/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
+{% endblock %}
+{% block title %}Manual transaction{% endblock %}
 
 {% block main %}
 <main>
@@ -46,7 +48,7 @@
             </div>
             <div class="col-12">
               <label for="date" class="form-label ">Date</label>
-              <input type="text" class="form-control border border-primary" id="date" name="date" placeholder="Example: 24/04/2022">
+              <input type="text" class="form-control border border-primary date" id="date" name="date" placeholder="Example: 24/04/2022">
             </div>
 
           <hr class="my-4">
@@ -58,6 +60,7 @@
   </main>
 {% endblock %}
 {% block js %}
+<script src="{% static 'django_razorpay/js/bootstrap-datepicker.min.js' %}"></script>
 <script>
   $(document).ready(function(){
 

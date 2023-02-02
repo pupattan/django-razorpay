@@ -100,31 +100,36 @@ class PaymentVerify(RedirectView):
             return reverse("django_razorpay:payment_failed")
 
 
-def transactions_list(request):
+def transactions(request):
     total_balance = Balance.objects.last().amount
     month_selected = request.GET.get("month")
     payment_type_selected = request.GET.get("payment-type")
     last_few_months = []
     now = timezone.now()
     month_value_format = "%b-%Y"
+
     if month_selected:
         current_month = month_selected
     else:
         current_month = now.strftime(month_value_format)
 
-    if payment_type_selected:
-        current_payment_type = payment_type_selected
-    else:
-        current_payment_type = Transaction.INCOMING
     current_month_dt = datetime.datetime.strptime(current_month, month_value_format)
     for i in range(10):
         __month = now - relativedelta(months=i)
         last_few_months.append({"label": __month.strftime("%b %Y"), "value": __month.strftime(month_value_format)})
-    transactions = Transaction.objects.filter(created_at__month=current_month_dt.month,
+
+    transactions_qs = Transaction.objects.filter(created_at__month=current_month_dt.month,
                                               created_at__year=current_month_dt.year,
-                                              payment_type=current_payment_type,
-                                              ).all()
-    return render(request, "django_razorpay/transactions_list.html", {"transactions": transactions,
+                                              )
+    if payment_type_selected:
+        current_payment_type = payment_type_selected
+        transactions = transactions_qs.filter(payment_type=payment_type_selected,
+                                                  ).all()
+    else:
+        current_payment_type = Transaction.ALL
+        transactions = transactions_qs.all()
+
+    return render(request, "django_razorpay/transactions.html", {"transactions": transactions,
                                                                       "total_balance": total_balance,
                                                                       "last_few_months": last_few_months,
                                                                       "current_month": current_month,
