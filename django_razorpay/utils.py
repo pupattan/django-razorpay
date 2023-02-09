@@ -66,9 +66,19 @@ class RazorpayCustom(object):
     def is_fee_applicable():
         return hasattr(settings, "DJ_RAZORPAY") and settings.DJ_RAZORPAY.get("RAZORPAY_ENABLE_CONVENIENCE_FEE")
 
-    def caculate_amount(self):
+    @staticmethod
+    def get_percentage(whole, part):
+        return Decimal(whole) / 100 * Decimal(part)
+
+    @staticmethod
+    def get_amount_with_charges(amount):
         org = Organization.objects.first()
-        amount = round(org.membership_fee + (org.membership_fee * (org.gateway_charges / 100)), 2)
+        return round(amount + RazorpayCustom.get_percentage(amount, org.gateway_charges), 2)
+
+    @staticmethod
+    def get_amount_deducting_charges(amount):
+        org = Organization.objects.first()
+        return round((amount * 100) / (100 + org.gateway_charges))
 
 
 def add_amount_to_total(amount, label):

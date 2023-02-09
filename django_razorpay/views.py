@@ -22,19 +22,10 @@ def membership_fee(request):
     if request.method == "POST":
         org = Organization.objects.last()
         if RazorpayCustom.is_fee_applicable():
-            amount = org.get_amount_fee_with_charges(org.membership_fee)
+            amount = RazorpayCustom.get_amount_with_charges(org.membership_fee)
         else:
             amount = round(org.membership_fee, 2)
 
-        # payment_data["gateway"] = {"key": RazorpayCustom.KEY, "amount": amount}
-        # payment_data["amount"] = amount
-        # payment_data["description"] = "Membership fee"
-        # payment_data["currency"] = RazorpayCustom.CURRENCY.upper()
-        # payment_data["organization_name"] = settings.DJ_RAZORPAY.get('organization_name')
-        # payment_data["organization_logo"] = settings.DJ_RAZORPAY.get('organization_logo')
-        # payment_data["order_id"] = RazorpayCustom().create_order(amount=amount,
-        #                                                          currency=payment_data["currency"],
-        #                                                          type="membership_fee")
         phonenumber = request.POST.get("phonenumber")
         name = request.POST.get("name")
         email = request.POST.get("email")
@@ -90,6 +81,8 @@ class PaymentVerify(RedirectView):
                 label = member.name
             else:
                 label = email
+            if RazorpayCustom.is_fee_applicable():
+                amount = RazorpayCustom.get_amount_deducting_charges(Decimal(amount))
             add_amount_to_total(amount, razorpay_payment_id)
             Transaction.objects.create(amount=amount,
                                        data=payment,
@@ -165,13 +158,13 @@ def manual_transaction(request):
 
 def addhoc_payment(request):
     if request.method == "POST":
-        org = Organization.objects.last()
         if RazorpayCustom.is_fee_applicable():
-            amount = org.get_amount_fee_with_charges(Decimal(request.POST.get("amount")))
+            amount = RazorpayCustom.get_amount_with_charges(Decimal(request.POST.get("amount")))
         else:
-            amount = round(org.membership_fee, 2)
+            amount = round(Decimal(request.POST.get("amount")), 2)
 
-        payment_data = RazorpayCustom().create_order(amount=amount, name=request.POST.get("label"))
-        return render(request, "django_razorpay/checkout.html", dict(payment_data=payment_data))
+        return render(request, "django_razorpay/checkout.html",
+                      dict(payment_data=RazorpayCustom().create_order(amount=amount,
+                                                                      name=request.POST.get("label"))))
     else:
         return render(request, "django_razorpay/adhoc_payment.html")
