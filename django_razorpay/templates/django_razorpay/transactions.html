@@ -72,6 +72,11 @@
           </tbody>
         </table>
           {% else %}
+          <table class="table">
+            {% if total_balance > 0 %}
+            <caption><b>Total current balance: &#x20B9; {{total_balance}}</b></caption>
+            {% endif %}
+          </table>
           <div class="row">
             <div class="col-12">
               <div class="alert alert-danger alert-dismissible fade show" role="alert">

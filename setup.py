@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='django-razorpay',
-    version='1.0.17',
+    version='1.0.18',
     url='https://github.com/pupattan/django-razorpay',
     license='MIT',
     author='pupattan',
