@@ -21,6 +21,7 @@ Razorpay payment gateway integration in a django project
       DJ_RAZORPAY = {
        "organization_name": "Acme Corp",
        "organization_email": "something@gmail.com",  # Optional
+       "organization_domain": "https://something.com",
        "organization_logo": "https://company.com/orlogo.png",  # Optional,
        "nav_links": [("Membership Fee", "/payments/membership-fee"),
                      ("Transactions", "/payments/transactions"),
@@ -32,7 +33,8 @@ Razorpay payment gateway integration in a django project
            "secret_key": "Vo9OgyOw1FqGufiqhlWu4Fy32kl",
            "currency": "inr"
        },
-       "RAZORPAY_ENABLE_CONVENIENCE_FEE": True # You charge a convenience fee to your customer.
+        "RAZORPAY_ENABLE_CONVENIENCE_FEE": True,     # You charge a convenience fee to your customer.
+        "USE_PAYMENT_LINK": True                     # If enabled it will create payment link, will not use checkout page
     }
 
     from django.contrib.messages import constants as messages

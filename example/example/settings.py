@@ -126,6 +126,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DJ_RAZORPAY = {
     "organization_name": "Acme Corp",
+    "organization_domain": "http://localhost:8000",
     "organization_email": "something@gmail.com",  # Optional
     "organization_logo": "https://www.cpsmashers.com/static/img/logo-transperant.png",  # Optional,
     "nav_links": [("Membership Fee", "/payments/membership-fee"),
@@ -134,11 +135,12 @@ DJ_RAZORPAY = {
                   ("Manual transaction", "/payments/manual-transaction")
                   ],
     "RAZORPAY_VARIANTS": {
-        "public_key": "rzp_test_6GvpLSAmWckaTn",
-        "secret_key": "Vo9OgyOw1FqGufiqhlWu4FyN",
+        "public_key": "rzp_live_zkeBDymtZygoQ2",
+        "secret_key": "koyvoraYtS8QS49jhYKpg8Cj",
         "currency": "inr"
     },
-    "RAZORPAY_ENABLE_CONVENIENCE_FEE": True # You charge a convenience fee to your customer.
+    "RAZORPAY_ENABLE_CONVENIENCE_FEE": True,     # You charge a convenience fee to your customer.
+    "USE_PAYMENT_LINK": True                    # If enabled it will create payment link, will not use checkout page
 }
 
 from django.contrib.messages import constants as messages

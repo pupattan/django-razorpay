@@ -35,7 +35,7 @@
                   {% endfor %}
 
                 </select>
-
+            {% if not use_rz_payment_link %}
             </div>
               <div class="col-12">
               <label for="phonenumber" class="form-label ">Phone Number</label>
@@ -45,6 +45,7 @@
               <label for="email" class="form-label">Email <span class="text-muted">(Optional)</span></label>
               <input type="email" class="form-control border border-primary" id="email" placeholder="you@example.com" name="email" required>
             </div>
+              {% endif %}
 
           <hr class="my-4">
           <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>

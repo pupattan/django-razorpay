@@ -1,5 +1,6 @@
 import json
 import datetime
+import time
 from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
@@ -19,27 +20,41 @@ from django.contrib.admin.views.decorators import staff_member_required
 
 def membership_fee(request):
     members = Member.objects.all().values_list('name', flat=True)
+    razorpay_instance = RazorpayCustom()
     if request.method == "POST":
         org = Organization.objects.last()
-        if RazorpayCustom.is_fee_applicable():
-            amount = RazorpayCustom.get_amount_with_charges(org.membership_fee)
+        if razorpay_instance.is_fee_applicable():
+            amount = razorpay_instance.get_amount_with_charges(org.membership_fee)
         else:
             amount = round(org.membership_fee, 2)
 
         phonenumber = request.POST.get("phonenumber")
         name = request.POST.get("name")
         email = request.POST.get("email")
-        payment_data = RazorpayCustom().create_order(amount=amount, email=email, name=name, phonenumber=phonenumber)
         existing_member = Member.objects.filter(name=name).first()
-        if existing_member:
+        if existing_member and phonenumber and email:
             existing_member.email = email
             existing_member.phone = phonenumber
             existing_member.save()
+
+        if razorpay_instance.use_payment_link():
+            return redirect(razorpay_instance.create_payment_link(amount=amount,
+                                                                  email=email,
+                                                                  name=name,
+                                                                  phonenumber=phonenumber,
+                                                                  reference_id="membership_fee__"
+                                                                               + str(existing_member.id)))
         else:
-            Member.objects.create(name=name, email=email)
-        return render(request, "django_razorpay/checkout.html", dict(payment_data=payment_data))
+            payment_data = razorpay_instance.create_order(amount=amount,
+                                                          email=email,
+                                                          name=name,
+                                                          phonenumber=phonenumber)
+
+            return render(request, "django_razorpay/checkout.html", dict(payment_data=payment_data))
     else:
-        return render(request, "django_razorpay/membership_fee.html", dict(members=members))
+        use_rz_payment_link = razorpay_instance.use_payment_link() or False
+        return render(request, "django_razorpay/membership_fee.html", dict(members=members,
+                                                                           use_rz_payment_link=use_rz_payment_link))
 
 
 def payment_success(request):
@@ -68,21 +83,39 @@ class PaymentVerify(RedirectView):
             label = self.request.GET.get('label')
             payment = rz.client.payment.fetch(razorpay_payment_id)
             amount = payment['amount'] / 100
-            email = ""
-            if payment.get('email'):
-                email = payment.get('email')
-            elif payment.get('customer_id'):
-                customer = rz.client.customer.fetch(payment['customer_id'])
-                email = customer["email"]
-            member = Member.objects.filter(email=email).first()
-            if label:
-                pass
-            elif member:
-                label = member.name
-            else:
-                label = email
-            if RazorpayCustom.is_fee_applicable():
-                amount = RazorpayCustom.get_amount_deducting_charges(Decimal(amount))
+
+            if rz.use_payment_link():
+                payment_link_reference_id = self.request.GET.get('razorpay_payment_link_reference_id')
+                razorpay_payment_link_id = self.request.GET.get('razorpay_payment_link_id')
+                payment_link = rz.client.payment_link.fetch(razorpay_payment_link_id)
+                if 'add_hoc' in payment_link_reference_id:
+                    label = payment_link["notes"]["label"]
+                elif "membership_fee" in payment_link_reference_id:
+                    ids = payment_link_reference_id.split("__")
+                    member = Member.objects.filter(id=int(ids[1])).first()
+                    label = member.name
+
+            else:   # for checkout page
+                email = ""
+                if payment.get('email'):
+                    email = payment.get('email')
+                elif payment.get('customer_id'):
+                    customer = rz.client.customer.fetch(payment['customer_id'])
+                    email = customer["email"]
+                member = Member.objects.filter(email=email).first()
+                if label:
+                    pass
+                elif member:
+                    label = member.name
+                else:
+                    label = email
+
+            if rz.is_fee_applicable():
+                amount = rz.get_amount_deducting_charges(Decimal(amount))
+
+            if Transaction.objects.filter(data__id=razorpay_payment_id).exists():
+                return reverse("django_razorpay:payment_failed")
+
             add_amount_to_total(amount, razorpay_payment_id)
             Transaction.objects.create(amount=amount,
                                        data=payment,
@@ -158,13 +191,19 @@ def manual_transaction(request):
 
 def addhoc_payment(request):
     if request.method == "POST":
-        if RazorpayCustom.is_fee_applicable():
-            amount = RazorpayCustom.get_amount_with_charges(Decimal(request.POST.get("amount")))
+        razorpay_instance = RazorpayCustom()
+        if razorpay_instance.is_fee_applicable():
+            amount = razorpay_instance.get_amount_with_charges(Decimal(request.POST.get("amount")))
         else:
             amount = round(Decimal(request.POST.get("amount")), 2)
 
-        return render(request, "django_razorpay/checkout.html",
-                      dict(payment_data=RazorpayCustom().create_order(amount=amount,
-                                                                      name=request.POST.get("label"))))
+        if razorpay_instance.use_payment_link():
+            return redirect(razorpay_instance.create_payment_link(amount=amount,
+                                                                  label=request.POST.get("label"),
+                                                                  reference_id="add_hoc" + "_" + str(int(time.time()))))
+        else:
+            return render(request, "django_razorpay/checkout.html",
+                          dict(payment_data=RazorpayCustom().create_order(amount=amount,
+                                                                          name=request.POST.get("label"))))
     else:
         return render(request, "django_razorpay/adhoc_payment.html")
