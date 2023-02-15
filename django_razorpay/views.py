@@ -93,7 +93,7 @@ class PaymentVerify(RedirectView):
                 elif "membership_fee" in payment_link_reference_id:
                     ids = payment_link_reference_id.split("__")
                     member = Member.objects.filter(id=int(ids[1])).first()
-                    label = member.name
+                    label = str(member.name) + "(Fee)"
 
             else:   # for checkout page
                 email = ""
