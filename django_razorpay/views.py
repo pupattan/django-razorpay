@@ -122,8 +122,8 @@ class PaymentVerify(RedirectView):
                                        data=payment,
                                        label=label,
                                        payment_type=Transaction.INCOMING)
-
-            return reverse("django_razorpay:payment_success")
+            messages.success(self.request, "Payment successful....")
+            return reverse("django_razorpay:transactions")
         else:
             return reverse("django_razorpay:payment_failed")
 
@@ -148,7 +148,7 @@ def transactions(request):
 
     transactions_qs = Transaction.objects.filter(created_at__month=current_month_dt.month,
                                                  created_at__year=current_month_dt.year,
-                                                 )
+                                                 ).order_by('-created_at')
     if not payment_type_selected or payment_type_selected == Transaction.ALL:
         current_payment_type = Transaction.ALL
         transactions = transactions_qs.all()
@@ -158,12 +158,12 @@ def transactions(request):
                                                   ).all()
 
     return render(request, "django_razorpay/transactions.html", {"transactions": transactions,
-                                                                      "total_balance": total_balance,
-                                                                      "last_few_months": last_few_months,
-                                                                      "current_month": current_month,
-                                                                      "payment_types": Transaction.PAYMENT_TYPE_LABEL,
-                                                                      "current_payment_type": current_payment_type
-                                                                      })
+                                                                 "total_balance": total_balance,
+                                                                 "last_few_months": last_few_months,
+                                                                 "current_month": current_month,
+                                                                 "payment_types": Transaction.PAYMENT_TYPE_LABEL,
+                                                                 "current_payment_type": current_payment_type
+                                                                 })
 
 
 @login_required
