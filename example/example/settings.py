@@ -135,8 +135,8 @@ DJ_RAZORPAY = {
                   ("Manual transaction", "/payments/manual-transaction")
                   ],
     "RAZORPAY_VARIANTS": {
-        "public_key": "rzp_live_zkeBDymtZygoQ2",
-        "secret_key": "koyvoraYtS8QS49jhYKpg8Cj",
+        "public_key": "rzp_test_6GvpLSAmWckaTn",
+        "secret_key": "Vo9OgyOw1FqGufiqhlWu4FyN",
         "currency": "inr"
     },
     "RAZORPAY_ENABLE_CONVENIENCE_FEE": True,     # You charge a convenience fee to your customer.
