@@ -91,7 +91,7 @@ class RazorpayCustom(object):
             "callback_method": "get"
         }
         if reference_id:
-            razorpay_data["reference_id"] = reference_id
+            razorpay_data["reference_id"] = reference_id + str(time.time()).replace(".", "")
 
         if name:
             razorpay_data.update({"customer": {

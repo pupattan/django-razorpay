@@ -43,7 +43,8 @@ def membership_fee(request):
                                                                   name=name,
                                                                   phonenumber=phonenumber,
                                                                   reference_id="membership_fee__"
-                                                                               + str(existing_member.id)))
+                                                                               + str(existing_member.id)
+                                                                               + "__"))
         else:
             payment_data = razorpay_instance.create_order(amount=amount,
                                                           email=email,
@@ -200,7 +201,7 @@ def addhoc_payment(request):
         if razorpay_instance.use_payment_link():
             return redirect(razorpay_instance.create_payment_link(amount=amount,
                                                                   label=request.POST.get("label"),
-                                                                  reference_id="add_hoc" + "_" + str(int(time.time()))))
+                                                                  reference_id="add_hoc_"))
         else:
             return render(request, "django_razorpay/checkout.html",
                           dict(payment_data=RazorpayCustom().create_order(amount=amount,

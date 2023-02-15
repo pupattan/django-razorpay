@@ -4,7 +4,7 @@ with open("README.md", 'r') as f:
 
 setup(
     name='django-razorpay',
-    version='1.0.30',
+    version='1.1.2',
     url='https://github.com/pupattan/django-razorpay',
     license='MIT',
     long_description=long_description,
